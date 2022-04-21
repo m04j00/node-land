@@ -3,7 +3,7 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 var template = require('./lib/template.js');
-
+var path = require('path');
 
 var app = http.createServer(function (request, response) {
     var _url = request.url;
@@ -11,7 +11,7 @@ var app = http.createServer(function (request, response) {
     var pathname = url.parse(_url, true).pathname;
 
     if (pathname === '/') {
-        var title = queryData.id;
+        var title = path.parse(queryData.id).base;
         if (title === undefined) {
             fs.readdir('./data', (err, filelist) => {
                 title = 'Welcome';
@@ -79,7 +79,7 @@ var app = http.createServer(function (request, response) {
         })
 
     } else if (pathname === '/update') {
-        var title = queryData.id;
+        var title = path.parse(queryData.id).base;
         fs.readdir('./data', (err, filelist) => {
             var list = template.list(filelist);
             fs.readFile(`data/${title}`, 'utf-8', (err, description) => {
@@ -130,7 +130,8 @@ var app = http.createServer(function (request, response) {
         request.on('end', function () {
             var post = qs.parse(body);
             var id = post.id;
-            fs.unlink(`data/${id}`, function (err) {
+            var filteredId = path.parse(id).base;
+            fs.unlink(`data/${filteredId}`, function (err) {
                 response.writeHead(302, {
                     Location: `/`
                 });
