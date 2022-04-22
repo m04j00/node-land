@@ -1,0 +1,25 @@
+{
+  "name": "node-land",
+  "version": "1.0.0",
+  "description": "!! 노들섬의 노드 스터디",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m04j00/node-lend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/m04j00/node-lend/issues"
+  },
+  "homepage": "https://github.com/m04j00/node-lend#readme",
+  "dependencies": {
+    "sanitize-html": "^2.7.0"
+  }
+}

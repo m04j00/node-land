@@ -4,6 +4,7 @@ var url = require('url');
 var qs = require('querystring');
 var template = require('./lib/template.js');
 var path = require('path');
+var sanitizeHtml = require('sanitize-html');
 
 var app = http.createServer(function (request, response) {
     var _url = request.url;
@@ -11,10 +12,9 @@ var app = http.createServer(function (request, response) {
     var pathname = url.parse(_url, true).pathname;
 
     if (pathname === '/') {
-        var title = path.parse(queryData.id).base;
-        if (title === undefined) {
+        if (queryData.id === undefined) {
             fs.readdir('./data', (err, filelist) => {
-                title = 'Welcome';
+                var title = 'Welcome';
                 description = 'Hello Node.js';
                 var list = template.list(filelist);
                 var html = template.html(title, list, `<h2>${title}</h2>${description}`, `<a href="/create">create</a>`);
@@ -23,17 +23,21 @@ var app = http.createServer(function (request, response) {
             })
         } else {
             fs.readdir('./data', (err, filelist) => {
+                var title = queryData.id;
+                var filteredId = path.parse(title).base;
                 var list = template.list(filelist);
-                fs.readFile(`data/${title}`, 'utf-8', (err, description) => {
+                fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
+                    var sanitizeTitle = sanitizeHtml(title);
+                    var sanitizeDescription = sanitizeHtml(description);
                     var html = template.html(
-                        title,
+                        sanitizeTitle,
                         list,
-                        `<h2>${title}</h2>${description}`,
+                        `<h2>${sanitizeTitle}</h2>${sanitizeDescription}`,
                         `
                             <a href="/create">create</a>
-                            <a href="/update?id=${title}">update</a>
+                            <a href="/update?id=${sanitizeTitle}">update</a>
                             <form action="delete-process" method="post">
-                                <input type="hidden" name="id" value="${title}">
+                                <input type="hidden" name="id" value="${sanitizeTitle}">
                                 <input type="submit" value="delete">
                             </form>
                         `
@@ -79,10 +83,11 @@ var app = http.createServer(function (request, response) {
         })
 
     } else if (pathname === '/update') {
-        var title = path.parse(queryData.id).base;
+        var title = queryData.id
+        var filteredId = path.parse(title).base;
         fs.readdir('./data', (err, filelist) => {
             var list = template.list(filelist);
-            fs.readFile(`data/${title}`, 'utf-8', (err, description) => {
+            fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
                 var html = template.html(title, list,
                     `<form action="/update-process" method="post">
                     <input type="hidden" name="id" value="${title}">
